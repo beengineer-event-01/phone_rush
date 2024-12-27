@@ -5,7 +5,6 @@ document.addEventListener("DOMContentLoaded", () => {
       window.DeviceOrientationEvent &&
       window.DeviceOrientationEvent.requestPermission
     ) {
-      // 権限付与文の追加
       DeviceOrientationEvent.requestPermission()
         .then((state) => {
           if (state === "granted") {

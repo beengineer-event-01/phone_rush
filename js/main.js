@@ -223,52 +223,7 @@ textureloader.load(
 
 // センサの値の読み取り
 document.addEventListener("DOMContentLoaded", function () {
-  (aX = 0), (aY = 0), (aZ = 0);
-  (alpha = 0), (beta = 0), (gamma = 0);
-
-  // 一度だけ実行
-  if (!isOnce) {
-    const handleDeviceMotion = (dat) => {
-      firstZ = dat.accelerationIncludingGravity.z;
-      if (firstZ > 0) {
-        ios = false;
-      }
-      isOnce = true;
-      window.removeEventListener("devicemotion", handleDeviceMotion); // リスナーを解除
-    };
-    window.addEventListener("devicemotion", handleDeviceMotion);
-  }
-
-  // 加速度センサの値の取得
-  window.addEventListener("devicemotion", (dat) => {
-    if (ios) {
-      // iOS の時
-      // ここに追加
-    } else {
-      // android の時
-      // ここに追加
-    }
-  });
-
-  // ジャイロセンサの値の取得
-  // ここに追加
-  window.addEventListener(
-    "deviceorientation",
-    (event) => {
-      alpha = event.alpha || 0;
-      beta = event.beta || 0;
-      gamma = event.gamma || 0;
-      console.log("Gyro:", alpha, beta, gamma);
-    },
-    false
-  );
-
-
-  // 一定時間ごとに
-  let graphtimer = window.setInterval(() => {
-    // ここに追加
-  }, 33);
-
+  // ...
   // 描画する関数
   function displayData() {
     let result = document.getElementById("result");
@@ -289,20 +244,88 @@ document.addEventListener("DOMContentLoaded", function () {
       aY +
       "<br />" +
       "aZ" +
-      aZ +
-      "<br />";
-  }
+      aZ;
+
+  window.addEventListener("devicemotion", (dat) => {
+    if (ios) {
+    // iOS の時
+      aX = dat.accelerationIncludingGravity.x || 0;
+      aY = dat.accelerationIncludingGravity.y || 0;
+      aZ = dat.accelerationIncludingGravity.z || 0;
+    } else {
+      // android の時
+      aX = -1 * dat.accelerationIncludingGravity.x || 0;
+      aY = -1 * dat.accelerationIncludingGravity.y || 0;
+      aZ = -1 * dat.accelerationIncludingGravity.z || 0;
+    }
+  });
+  // ...
+  // ジャイロセンサ
+  window.addEventListener(
+    "deviceorientation",
+    (event) => {
+      alpha = event.alpha || 0;
+      beta = event.beta || 0;
+      gamma = event.gamma || 0;
+      console.log("Gyro:", alpha, beta, gamma);
+    },
+    false
+  );
+}
+  // ...
 });
 
 // プレイヤーの移動
 function move() {
   // ここに追加
+  // if (gamma > 20 && !isMoving) {
+  //   if (index == 0 || index == 1) {
+  //     isMoving = true;
+  //     index += 1;
+  //     player.position.x = course[index];
+  //   }
+  // } else if (gamma < -20 && !isMoving) {
+  //   if (index == 1 || index == 2) {
+  //     isMoving = true;
+  //     index -= 1;
+  //     player.position.x = course[index];
+  //   }
+  // } else if (gamma < 1.5 && gamma > -1.5) {
+  //   isMoving = false;
+  // }
+
   player.position.z -= 0.2;
+  if (gamma > 20 && !isMoving) {
+    if (index == 0 || index == 1) {
+      isMoving = true;
+      index += 1;
+      player.position.x = course[index];
+    }
+  } else if (gamma < -20 && !isMoving) {
+    if (index == 1 || index == 2) {
+      isMoving = true;
+      index -= 1;
+      player.position.x = course[index];
+    }
+  } else if (gamma < 1.5 && gamma > -1.5) {
+    isMoving = false;
+  }
 }
 
 // プレイヤーのジャンプ
 function jump() {
   // ここに追加
+  if (!isJumping && aZ > 0) {
+    player_v_y = initial_velocity;
+    isJumping = true;
+  } else if (isJumping) {
+    player_v_y -= gravity;
+    player.position.y += player_v_y;
+    if (player.position.y <= 0) {
+      isJumping = false;
+      player.position.y = 0;
+    }
+  }
 }
 
 // 衝突判定
@@ -354,6 +377,7 @@ if (mixer) {
     move();
     // ジャンプ関数の実行
     // ここに追加
+    // プレイヤーの移動
     // 衝突判定関数の実行
     // ここに追加
     // カメラの移動
